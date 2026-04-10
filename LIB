@@ -16,10 +16,6 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.Parent = playerGui
 
--- ═══════════════════════════════
---         УТИЛИТЫ
--- ═══════════════════════════════
-
 local function tween(obj, props, duration)
     TweenService:Create(obj, TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), props):Play()
 end
@@ -64,16 +60,11 @@ local function makeDraggable(frame, handle)
     end)
 end
 
--- ═══════════════════════════════
---         СОЗДАНИЕ ОКНА
--- ═══════════════════════════════
-
 function MyLib:CreateWindow(config)
     local Window = {}
     local tabs = {}
     local currentTab = nil
 
-    -- Главный фрейм
     local Main = Instance.new("Frame")
     Main.Name = "Main"
     Main.Size = UDim2.new(0, 550, 0, 380)
@@ -84,7 +75,6 @@ function MyLib:CreateWindow(config)
     corner(Main, 10)
     stroke(Main, Color3.fromRGB(50, 50, 50))
 
-    -- Тень
     local Shadow = Instance.new("ImageLabel")
     Shadow.Name = "Shadow"
     Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -99,7 +89,6 @@ function MyLib:CreateWindow(config)
     Shadow.ZIndex = 0
     Shadow.Parent = Main
 
-    -- Топбар
     local Topbar = Instance.new("Frame")
     Topbar.Name = "Topbar"
     Topbar.Size = UDim2.new(1, 0, 0, 45)
@@ -109,7 +98,6 @@ function MyLib:CreateWindow(config)
     Topbar.Parent = Main
     corner(Topbar, 10)
 
-    -- Фикс углов топбара снизу
     local TopbarFix = Instance.new("Frame")
     TopbarFix.Size = UDim2.new(1, 0, 0.5, 0)
     TopbarFix.Position = UDim2.new(0, 0, 0.5, 0)
@@ -118,7 +106,6 @@ function MyLib:CreateWindow(config)
     TopbarFix.ZIndex = 2
     TopbarFix.Parent = Topbar
 
-    -- Заголовок
     local Title = Instance.new("TextLabel")
     Title.Text = config.Title or "MyLib"
     Title.Size = UDim2.new(1, -100, 1, 0)
@@ -131,7 +118,6 @@ function MyLib:CreateWindow(config)
     Title.ZIndex = 3
     Title.Parent = Topbar
 
-    -- Разделитель
     local Divider = Instance.new("Frame")
     Divider.Size = UDim2.new(1, 0, 0, 1)
     Divider.Position = UDim2.new(0, 0, 1, -1)
@@ -140,9 +126,6 @@ function MyLib:CreateWindow(config)
     Divider.ZIndex = 3
     Divider.Parent = Topbar
 
-    -- ═══════════════════════════════
-    --   КНОПКА ЗАКРЫТЬ (исправлена)
-    -- ═══════════════════════════════
     local CloseBtn = Instance.new("TextButton")
     CloseBtn.Size = UDim2.new(0, 28, 0, 28)
     CloseBtn.Position = UDim2.new(1, -38, 0.5, -14)
@@ -169,7 +152,6 @@ function MyLib:CreateWindow(config)
         ScreenGui:Destroy()
     end)
 
-    -- Кнопка свернуть
     local MinBtn = Instance.new("TextButton")
     MinBtn.Size = UDim2.new(0, 28, 0, 28)
     MinBtn.Position = UDim2.new(1, -74, 0.5, -14)
@@ -204,7 +186,6 @@ function MyLib:CreateWindow(config)
 
     makeDraggable(Main, Topbar)
 
-    -- Список вкладок (слева)
     local TabList = Instance.new("Frame")
     TabList.Name = "TabList"
     TabList.Size = UDim2.new(0, 130, 1, -55)
@@ -225,7 +206,6 @@ function MyLib:CreateWindow(config)
     TabListPad.PaddingRight = UDim.new(0, 6)
     TabListPad.Parent = TabList
 
-    -- Контент вкладок (справа)
     ContentHolder = Instance.new("Frame")
     ContentHolder.Name = "ContentHolder"
     ContentHolder.Size = UDim2.new(1, -148, 1, -55)
@@ -233,10 +213,6 @@ function MyLib:CreateWindow(config)
     ContentHolder.BackgroundTransparency = 1
     ContentHolder.ClipsDescendants = true
     ContentHolder.Parent = Main
-
-    -- ═══════════════════════════════
-    --         ВКЛАДКИ
-    -- ═══════════════════════════════
 
     function Window:CreateTab(name)
         local Tab = {}
@@ -308,11 +284,6 @@ function MyLib:CreateWindow(config)
 
         local elementOrder = 0
 
-        -- ═══════════════════════════════
-        --         ЭЛЕМЕНТЫ
-        -- ═══════════════════════════════
-
-        -- Секция
         function Tab:CreateSection(sectionName)
             elementOrder += 1
             local SectionLabel = Instance.new("TextLabel")
@@ -327,7 +298,6 @@ function MyLib:CreateWindow(config)
             SectionLabel.Parent = TabPage
         end
 
-        -- Кнопка
         function Tab:CreateButton(config)
             elementOrder += 1
             local Btn = Instance.new("TextButton")
@@ -357,7 +327,6 @@ function MyLib:CreateWindow(config)
             end)
         end
 
-        -- Тогл
         function Tab:CreateToggle(config)
             elementOrder += 1
             local state = config.Default or false
@@ -438,15 +407,11 @@ function MyLib:CreateWindow(config)
             return ToggleObj
         end
 
-        -- ═══════════════════════════════
-        --   ДРОПДАУН (оверлей, без растяжки контейнера)
-        -- ═══════════════════════════════
         function Tab:CreateDropdown(config)
             elementOrder += 1
             local selected = config.Default or config.Options[1]
             local isOpen = false
 
-            -- Контейнер фиксированного размера — не меняется
             local Container = Instance.new("Frame")
             Container.Size = UDim2.new(1, 0, 0, 38)
             Container.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
@@ -492,7 +457,6 @@ function MyLib:CreateWindow(config)
             Arrow.ZIndex = 6
             Arrow.Parent = Container
 
-            -- DropList рендерится прямо в ScreenGui как оверлей
             local DropList = Instance.new("Frame")
             DropList.Size = UDim2.new(0, 0, 0, 0)
             DropList.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
@@ -528,7 +492,6 @@ function MyLib:CreateWindow(config)
             end
 
             local function openDropdown()
-                -- Позиционируем под контейнером в абсолютных координатах
                 local absPos = Container.AbsolutePosition
                 local absSize = Container.AbsoluteSize
                 local dropW = absSize.X
@@ -603,7 +566,6 @@ function MyLib:CreateWindow(config)
                 end
             end)
 
-            -- Закрывать при клике вне дропдауна
             UserInputService.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 and isOpen then
                     local mousePos = UserInputService:GetMouseLocation()
@@ -632,7 +594,6 @@ function MyLib:CreateWindow(config)
             return DropObj
         end
 
-        -- Слайдер
         function Tab:CreateSlider(config)
             elementOrder += 1
             local value = config.Default or config.Min
@@ -747,7 +708,6 @@ function MyLib:CreateWindow(config)
             return SliderObj
         end
 
-        -- Инпут
         function Tab:CreateInput(config)
             elementOrder += 1
 
@@ -805,7 +765,6 @@ function MyLib:CreateWindow(config)
             end)
         end
 
-        -- Лейбл
         function Tab:CreateLabel(text)
             elementOrder += 1
             local Lbl = Instance.new("TextLabel")
@@ -831,7 +790,6 @@ function MyLib:CreateWindow(config)
         return Tab
     end
 
-    -- Уведомление
     function Window:Notify(config)
         local NotifHolder = ScreenGui:FindFirstChild("Notifications") or Instance.new("Frame")
         NotifHolder.Name = "Notifications"
@@ -891,7 +849,6 @@ function MyLib:CreateWindow(config)
         end)
     end
 
-    -- Анимация появления
     Main.Size = UDim2.new(0, 550, 0, 0)
     Main.BackgroundTransparency = 1
     tween(Main, {Size = UDim2.new(0, 550, 0, 380), BackgroundTransparency = 0}, 0.4)
