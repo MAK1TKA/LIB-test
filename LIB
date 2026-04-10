@@ -140,20 +140,29 @@ function MyLib:CreateWindow(config)
     Divider.ZIndex = 3
     Divider.Parent = Topbar
 
-    -- Кнопка закрыть
+    -- ═══════════════════════════════
+    --   КНОПКА ЗАКРЫТЬ (исправлена)
+    -- ═══════════════════════════════
     local CloseBtn = Instance.new("TextButton")
-    CloseBtn.Size = UDim2.new(0, 30, 0, 30)
-    CloseBtn.Position = UDim2.new(1, -40, 0.5, -15)
-    CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
-    CloseBtn.Text = "X"
+    CloseBtn.Size = UDim2.new(0, 28, 0, 28)
+    CloseBtn.Position = UDim2.new(1, -38, 0.5, -14)
+    CloseBtn.BackgroundColor3 = Color3.fromRGB(190, 55, 55)
+    CloseBtn.Text = "✕"
     CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     CloseBtn.Font = Enum.Font.GothamBold
-    CloseBtn.TextSize = 13
+    CloseBtn.TextSize = 12
     CloseBtn.BorderSizePixel = 0
+    CloseBtn.AutoButtonColor = false
     CloseBtn.ZIndex = 3
     CloseBtn.Parent = Topbar
     corner(CloseBtn, 6)
 
+    CloseBtn.MouseEnter:Connect(function()
+        tween(CloseBtn, {BackgroundColor3 = Color3.fromRGB(220, 70, 70)}, 0.15)
+    end)
+    CloseBtn.MouseLeave:Connect(function()
+        tween(CloseBtn, {BackgroundColor3 = Color3.fromRGB(190, 55, 55)}, 0.15)
+    end)
     CloseBtn.MouseButton1Click:Connect(function()
         tween(Main, {Size = UDim2.new(0, 550, 0, 0), BackgroundTransparency = 1}, 0.3)
         task.wait(0.35)
@@ -162,20 +171,28 @@ function MyLib:CreateWindow(config)
 
     -- Кнопка свернуть
     local MinBtn = Instance.new("TextButton")
-    MinBtn.Size = UDim2.new(0, 30, 0, 30)
-    MinBtn.Position = UDim2.new(1, -78, 0.5, -15)
+    MinBtn.Size = UDim2.new(0, 28, 0, 28)
+    MinBtn.Position = UDim2.new(1, -74, 0.5, -14)
     MinBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     MinBtn.Text = "─"
     MinBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
     MinBtn.Font = Enum.Font.GothamBold
     MinBtn.TextSize = 13
     MinBtn.BorderSizePixel = 0
+    MinBtn.AutoButtonColor = false
     MinBtn.ZIndex = 3
     MinBtn.Parent = Topbar
     corner(MinBtn, 6)
 
+    MinBtn.MouseEnter:Connect(function()
+        tween(MinBtn, {BackgroundColor3 = Color3.fromRGB(65, 65, 65)}, 0.15)
+    end)
+    MinBtn.MouseLeave:Connect(function()
+        tween(MinBtn, {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}, 0.15)
+    end)
+
     local minimised = false
-    local ContentHolder -- объявим ниже
+    local ContentHolder
     MinBtn.MouseButton1Click:Connect(function()
         minimised = not minimised
         if minimised then
@@ -224,7 +241,6 @@ function MyLib:CreateWindow(config)
     function Window:CreateTab(name)
         local Tab = {}
 
-        -- Кнопка вкладки
         local TabBtn = Instance.new("TextButton")
         TabBtn.Name = name
         TabBtn.Size = UDim2.new(1, 0, 0, 32)
@@ -239,7 +255,6 @@ function MyLib:CreateWindow(config)
         TabBtn.Parent = TabList
         corner(TabBtn, 6)
 
-        -- Страница контента
         local TabPage = Instance.new("ScrollingFrame")
         TabPage.Name = name
         TabPage.Size = UDim2.new(1, 0, 1, 0)
@@ -367,7 +382,6 @@ function MyLib:CreateWindow(config)
             Label.TextXAlignment = Enum.TextXAlignment.Left
             Label.Parent = Container
 
-            -- Свитч
             local Switch = Instance.new("Frame")
             Switch.Size = UDim2.new(0, 44, 0, 24)
             Switch.Position = UDim2.new(1, -54, 0.5, -12)
@@ -424,18 +438,20 @@ function MyLib:CreateWindow(config)
             return ToggleObj
         end
 
-        -- Дропдаун
+        -- ═══════════════════════════════
+        --   ДРОПДАУН (оверлей, без растяжки контейнера)
+        -- ═══════════════════════════════
         function Tab:CreateDropdown(config)
             elementOrder += 1
             local selected = config.Default or config.Options[1]
             local isOpen = false
 
+            -- Контейнер фиксированного размера — не меняется
             local Container = Instance.new("Frame")
             Container.Size = UDim2.new(1, 0, 0, 38)
             Container.BackgroundColor3 = Color3.fromRGB(32, 32, 32)
             Container.BorderSizePixel = 0
             Container.LayoutOrder = elementOrder
-            Container.ClipsDescendants = false
             Container.ZIndex = 5
             Container.Parent = TabPage
             corner(Container, 6)
@@ -476,16 +492,15 @@ function MyLib:CreateWindow(config)
             Arrow.ZIndex = 6
             Arrow.Parent = Container
 
-            -- Список опций
+            -- DropList рендерится прямо в ScreenGui как оверлей
             local DropList = Instance.new("Frame")
-            DropList.Size = UDim2.new(1, 0, 0, 0)
-            DropList.Position = UDim2.new(0, 0, 1, 4)
+            DropList.Size = UDim2.new(0, 0, 0, 0)
             DropList.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
             DropList.BorderSizePixel = 0
             DropList.ClipsDescendants = true
-            DropList.ZIndex = 10
+            DropList.ZIndex = 100
             DropList.Visible = false
-            DropList.Parent = Container
+            DropList.Parent = ScreenGui
             corner(DropList, 6)
             stroke(DropList, Color3.fromRGB(50, 50, 50))
 
@@ -504,18 +519,40 @@ function MyLib:CreateWindow(config)
             local optionHeight = 30
             local totalHeight = (#config.Options * (optionHeight + 2)) + 8
 
+            local function closeDropdown()
+                isOpen = false
+                Arrow.Text = "▼"
+                tween(DropList, {Size = UDim2.new(0, DropList.AbsoluteSize.X, 0, 0)}, 0.2)
+                task.wait(0.22)
+                DropList.Visible = false
+            end
+
+            local function openDropdown()
+                -- Позиционируем под контейнером в абсолютных координатах
+                local absPos = Container.AbsolutePosition
+                local absSize = Container.AbsoluteSize
+                local dropW = absSize.X
+                local dropX = absPos.X
+                local dropY = absPos.Y + absSize.Y + 4
+
+                DropList.Position = UDim2.new(0, dropX, 0, dropY)
+                DropList.Size = UDim2.new(0, dropW, 0, 0)
+                DropList.Visible = true
+                tween(DropList, {Size = UDim2.new(0, dropW, 0, totalHeight)}, 0.22)
+            end
+
             for i, option in ipairs(config.Options) do
                 local OptBtn = Instance.new("TextButton")
                 OptBtn.Size = UDim2.new(1, 0, 0, optionHeight)
                 OptBtn.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
                 OptBtn.BackgroundTransparency = option == selected and 0 or 1
                 OptBtn.Text = option
-                OptBtn.TextColor3 = option == selected and Color3.fromRGB(255,255,255) or Color3.fromRGB(180, 180, 180)
+                OptBtn.TextColor3 = option == selected and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 180, 180)
                 OptBtn.Font = Enum.Font.Gotham
                 OptBtn.TextSize = 12
                 OptBtn.BorderSizePixel = 0
                 OptBtn.LayoutOrder = i
-                OptBtn.ZIndex = 11
+                OptBtn.ZIndex = 101
                 OptBtn.Parent = DropList
                 corner(OptBtn, 4)
 
@@ -534,25 +571,17 @@ function MyLib:CreateWindow(config)
                     selected = option
                     SelectedLabel.Text = option
 
-                    -- Обновить все кнопки
                     for _, child in ipairs(DropList:GetChildren()) do
                         if child:IsA("TextButton") then
-                            local isSelected = child.Text == selected
+                            local isSel = child.Text == selected
                             tween(child, {
-                                BackgroundTransparency = isSelected and 0 or 1,
-                                TextColor3 = isSelected and Color3.fromRGB(255,255,255) or Color3.fromRGB(180,180,180)
+                                BackgroundTransparency = isSel and 0 or 1,
+                                TextColor3 = isSel and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 180, 180)
                             }, 0.15)
                         end
                     end
 
-                    -- Закрыть
-                    isOpen = false
-                    Arrow.Text = "▼"
-                    tween(DropList, {Size = UDim2.new(1, 0, 0, 0)}, 0.25)
-                    task.wait(0.25)
-                    DropList.Visible = false
-                    tween(Container, {Size = UDim2.new(1, 0, 0, 38)}, 0.25)
-
+                    closeDropdown()
                     pcall(config.Callback, selected)
                 end)
             end
@@ -568,16 +597,29 @@ function MyLib:CreateWindow(config)
                 isOpen = not isOpen
                 if isOpen then
                     Arrow.Text = "▲"
-                    DropList.Visible = true
-                    DropList.Size = UDim2.new(1, 0, 0, 0)
-                    tween(DropList, {Size = UDim2.new(1, 0, 0, totalHeight)}, 0.25)
-                    tween(Container, {Size = UDim2.new(1, 0, 0, 38 + totalHeight + 4)}, 0.25)
+                    openDropdown()
                 else
-                    Arrow.Text = "▼"
-                    tween(DropList, {Size = UDim2.new(1, 0, 0, 0)}, 0.25)
-                    task.wait(0.25)
-                    DropList.Visible = false
-                    tween(Container, {Size = UDim2.new(1, 0, 0, 38)}, 0.25)
+                    closeDropdown()
+                end
+            end)
+
+            -- Закрывать при клике вне дропдауна
+            UserInputService.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 and isOpen then
+                    local mousePos = UserInputService:GetMouseLocation()
+                    local dp = DropList.AbsolutePosition
+                    local ds = DropList.AbsoluteSize
+                    local cp = Container.AbsolutePosition
+                    local cs = Container.AbsoluteSize
+
+                    local inDrop = mousePos.X >= dp.X and mousePos.X <= dp.X + ds.X
+                        and mousePos.Y >= dp.Y and mousePos.Y <= dp.Y + ds.Y
+                    local inContainer = mousePos.X >= cp.X and mousePos.X <= cp.X + cs.X
+                        and mousePos.Y >= cp.Y and mousePos.Y <= cp.Y + cs.Y
+
+                    if not inDrop and not inContainer then
+                        closeDropdown()
+                    end
                 end
             end)
 
