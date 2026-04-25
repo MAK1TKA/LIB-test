@@ -60,6 +60,199 @@ local function makeDraggable(frame, handle)
     end)
 end
 
+function MyLib:ShowLoadingScreen(title, duration)
+    local LoadingScreen = Instance.new("Frame")
+    LoadingScreen.Name = "LoadingScreen"
+    LoadingScreen.Size = UDim2.new(1, 0, 1, 0)
+    LoadingScreen.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+    LoadingScreen.BackgroundTransparency = 0
+    LoadingScreen.BorderSizePixel = 0
+    LoadingScreen.ZIndex = 1000
+    LoadingScreen.Parent = playerGui
+
+    -- Gradient background
+    local UIGradient = Instance.new("UIGradient")
+    UIGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 20, 50)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(20, 60, 120)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 20, 50))
+    })
+    UIGradient.Rotation = 45
+    UIGradient.Parent = LoadingScreen
+
+    -- Title with logo effect
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, 0, 0, 80)
+    Title.Position = UDim2.new(0, 0, 0.5, -40)
+    Title.BackgroundTransparency = 1
+    Title.Text = title or "MAK1 HUB"
+    Title.TextColor3 = Color3.fromRGB(100, 180, 255)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 48
+    Title.ZIndex = 1001
+    Title.Parent = LoadingScreen
+
+    -- Loading bar background
+    local BarBg = Instance.new("Frame")
+    BarBg.Size = UDim2.new(0, 300, 0, 8)
+    BarBg.Position = UDim2.new(0.5, -150, 0.5, 60)
+    BarBg.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    BarBg.BorderSizePixel = 0
+    BarBg.ZIndex = 1001
+    BarBg.Parent = LoadingScreen
+    corner(BarBg, 4)
+
+    -- Loading bar fill
+    local BarFill = Instance.new("Frame")
+    BarFill.Size = UDim2.new(0, 0, 1, 0)
+    BarFill.BackgroundColor3 = Color3.fromRGB(100, 180, 255)
+    BarFill.BorderSizePixel = 0
+    BarFill.ZIndex = 1002
+    BarFill.Parent = BarBg
+    corner(BarFill, 4)
+
+    -- Animate loading bar
+    local startTime = tick()
+    local function updateBar()
+        local elapsed = tick() - startTime
+        local progress = math.min(elapsed / (duration or 3), 1)
+        BarFill.Size = UDim2.new(progress, 0, 1, 0)
+        if progress < 1 then
+            task.wait(0.02)
+            updateBar()
+        end
+    end
+    task.spawn(updateBar)
+
+    -- Fade out and remove
+    task.delay(duration or 3, function()
+        tween(LoadingScreen, {BackgroundTransparency = 1}, 0.5)
+        tween(Title, {TextTransparency = 1}, 0.5)
+        tween(BarBg, {BackgroundTransparency = 1}, 0.5)
+        task.wait(0.55)
+        LoadingScreen:Destroy()
+    end)
+
+    return LoadingScreen
+end
+
+function MyLib:ShowKeyPrompt(callback)
+    local KeyPromptGui = Instance.new("ScreenGui")
+    KeyPromptGui.Name = "KeyPrompt"
+    KeyPromptGui.ResetOnSpawn = false
+    KeyPromptGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    KeyPromptGui.Parent = playerGui
+
+    -- Background blur effect
+    local BgOverlay = Instance.new("Frame")
+    BgOverlay.Size = UDim2.new(1, 0, 1, 0)
+    BgOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    BgOverlay.BackgroundTransparency = 0.7
+    BgOverlay.BorderSizePixel = 0
+    BgOverlay.ZIndex = 999
+    BgOverlay.Parent = KeyPromptGui
+
+    -- Main frame
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Size = UDim2.new(0, 400, 0, 250)
+    MainFrame.Position = UDim2.new(0.5, -200, 0.5, -125)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.ZIndex = 1000
+    MainFrame.Parent = KeyPromptGui
+    corner(MainFrame, 12)
+    stroke(MainFrame, Color3.fromRGB(100, 180, 255), 2)
+
+    -- Title
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, 0, 0, 50)
+    Title.BackgroundTransparency = 1
+    Title.Text = "Enter Key"
+    Title.TextColor3 = Color3.fromRGB(100, 180, 255)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 24
+    Title.ZIndex = 1001
+    Title.Parent = MainFrame
+
+    -- Input field
+    local InputField = Instance.new("TextBox")
+    InputField.Size = UDim2.new(0.8, 0, 0, 40)
+    InputField.Position = UDim2.new(0.1, 0, 0, 70)
+    InputField.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    InputField.TextColor3 = Color3.fromRGB(220, 220, 220)
+    InputField.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
+    InputField.PlaceholderText = "Enter your key..."
+    InputField.Font = Enum.Font.Gotham
+    InputField.TextSize = 16
+    InputField.BorderSizePixel = 0
+    InputField.ZIndex = 1001
+    InputField.Parent = MainFrame
+    InputField.ClearTextOnFocus = false
+    corner(InputField, 6)
+    stroke(InputField, Color3.fromRGB(100, 180, 255), 1)
+
+    local pad = Instance.new("UIPadding")
+    pad.PaddingLeft = UDim.new(0, 12)
+    pad.Parent = InputField
+
+    -- Submit button
+    local SubmitBtn = Instance.new("TextButton")
+    SubmitBtn.Size = UDim2.new(0.35, 0, 0, 35)
+    SubmitBtn.Position = UDim2.new(0.325, 0, 0, 130)
+    SubmitBtn.BackgroundColor3 = Color3.fromRGB(100, 180, 255)
+    SubmitBtn.Text = "Submit"
+    SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SubmitBtn.Font = Enum.Font.GothamBold
+    SubmitBtn.TextSize = 14
+    SubmitBtn.BorderSizePixel = 0
+    SubmitBtn.ZIndex = 1001
+    SubmitBtn.Parent = MainFrame
+    corner(SubmitBtn, 6)
+
+    -- Status label
+    local StatusLabel = Instance.new("TextLabel")
+    StatusLabel.Size = UDim2.new(0.8, 0, 0, 30)
+    StatusLabel.Position = UDim2.new(0.1, 0, 0, 180)
+    StatusLabel.BackgroundTransparency = 1
+    StatusLabel.Text = ""
+    StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+    StatusLabel.Font = Enum.Font.Gotham
+    StatusLabel.TextSize = 12
+    StatusLabel.ZIndex = 1001
+    StatusLabel.Parent = MainFrame
+
+    local function submit()
+        if callback(InputField.Text) then
+            tween(MainFrame, {BackgroundTransparency = 1}, 0.3)
+            tween(BgOverlay, {BackgroundTransparency = 1}, 0.3)
+            task.wait(0.35)
+            KeyPromptGui:Destroy()
+        else
+            StatusLabel.Text = "Invalid key!"
+            StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+            tween(InputField, {BackgroundColor3 = Color3.fromRGB(80, 30, 30)}, 0.15)
+            task.wait(0.5)
+            tween(InputField, {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}, 0.15)
+            InputField.Text = ""
+        end
+    end
+
+    SubmitBtn.MouseButton1Click:Connect(submit)
+    SubmitBtn.MouseEnter:Connect(function()
+        tween(SubmitBtn, {BackgroundColor3 = Color3.fromRGB(120, 200, 255)}, 0.15)
+    end)
+    SubmitBtn.MouseLeave:Connect(function()
+        tween(SubmitBtn, {BackgroundColor3 = Color3.fromRGB(100, 180, 255)}, 0.15)
+    end)
+
+    InputField.FocusLost:Connect(function(entered)
+        if entered then
+            submit()
+        end
+    end)
+end
+
 function MyLib:CreateWindow(config)
     local Window = {}
     local tabs = {}
@@ -411,6 +604,7 @@ function MyLib:CreateWindow(config)
             elementOrder += 1
             local selected = config.Default or config.Options[1]
             local isOpen = false
+            local maxVisibleItems = 6
 
             local Container = Instance.new("Frame")
             Container.Size = UDim2.new(1, 0, 0, 38)
@@ -468,26 +662,35 @@ function MyLib:CreateWindow(config)
             corner(DropList, 6)
             stroke(DropList, Color3.fromRGB(50, 50, 50))
 
+            local ScrollFrame = Instance.new("ScrollingFrame")
+            ScrollFrame.Size = UDim2.new(1, 0, 1, 0)
+            ScrollFrame.BackgroundTransparency = 1
+            ScrollFrame.ScrollBarThickness = 2
+            ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(70, 70, 70)
+            ScrollFrame.BorderSizePixel = 0
+            ScrollFrame.Parent = DropList
+
             local DropLayout = Instance.new("UIListLayout")
             DropLayout.SortOrder = Enum.SortOrder.LayoutOrder
             DropLayout.Padding = UDim.new(0, 2)
-            DropLayout.Parent = DropList
+            DropLayout.Parent = ScrollFrame
 
             local DropPad = Instance.new("UIPadding")
             DropPad.PaddingTop = UDim.new(0, 4)
             DropPad.PaddingBottom = UDim.new(0, 4)
             DropPad.PaddingLeft = UDim.new(0, 4)
             DropPad.PaddingRight = UDim.new(0, 4)
-            DropPad.Parent = DropList
+            DropPad.Parent = ScrollFrame
 
             local optionHeight = 30
-            local totalHeight = (#config.Options * (optionHeight + 2)) + 8
+            local visibleItems = math.min(#config.Options, maxVisibleItems)
+            local totalHeight = (visibleItems * (optionHeight + 2)) + 8
 
             local function closeDropdown()
                 isOpen = false
                 Arrow.Text = "▼"
-                tween(DropList, {Size = UDim2.new(0, DropList.AbsoluteSize.X, 0, 0)}, 0.2)
-                task.wait(0.22)
+                tween(DropList, {Size = UDim2.new(0, DropList.AbsoluteSize.X, 0, 0)}, 0.15)
+                task.wait(0.17)
                 DropList.Visible = false
             end
 
@@ -501,7 +704,8 @@ function MyLib:CreateWindow(config)
                 DropList.Position = UDim2.new(0, dropX, 0, dropY)
                 DropList.Size = UDim2.new(0, dropW, 0, 0)
                 DropList.Visible = true
-                tween(DropList, {Size = UDim2.new(0, dropW, 0, totalHeight)}, 0.22)
+                ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, DropLayout.AbsoluteContentSize.Y + 8)
+                tween(DropList, {Size = UDim2.new(0, dropW, 0, totalHeight)}, 0.15)
             end
 
             for i, option in ipairs(config.Options) do
@@ -516,7 +720,7 @@ function MyLib:CreateWindow(config)
                 OptBtn.BorderSizePixel = 0
                 OptBtn.LayoutOrder = i
                 OptBtn.ZIndex = 101
-                OptBtn.Parent = DropList
+                OptBtn.Parent = ScrollFrame
                 corner(OptBtn, 4)
 
                 OptBtn.MouseEnter:Connect(function()
@@ -534,7 +738,7 @@ function MyLib:CreateWindow(config)
                     selected = option
                     SelectedLabel.Text = option
 
-                    for _, child in ipairs(DropList:GetChildren()) do
+                    for _, child in ipairs(ScrollFrame:GetChildren()) do
                         if child:IsA("TextButton") then
                             local isSel = child.Text == selected
                             tween(child, {
