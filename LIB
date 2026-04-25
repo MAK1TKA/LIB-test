@@ -61,10 +61,10 @@ local function makeDraggable(frame, handle)
 end
 
 -- ╔══════════════════════════════════════════════╗
--- ║           НОВЫЙ LOADING SCREEN               ║
+-- ║           LOADING SCREEN v2                  ║
 -- ╚══════════════════════════════════════════════╝
 function MyLib:ShowLoadingScreen(title, duration)
-    local dur = duration or 3
+    local dur = (duration or 3) + 2  -- +2 секунды как просили
 
     local LoadingGui = Instance.new("ScreenGui")
     LoadingGui.Name = "MAK1LoadingScreen"
@@ -73,10 +73,10 @@ function MyLib:ShowLoadingScreen(title, duration)
     LoadingGui.IgnoreGuiInset = true
     LoadingGui.Parent = playerGui
 
-    -- === ПОЛНОЭКРАННЫЙ ФОН ===
+    -- === ПОЛНОЭКРАННЫЙ ФОН (без карточки) ===
     local BG = Instance.new("Frame")
     BG.Size = UDim2.new(1, 0, 1, 0)
-    BG.BackgroundColor3 = Color3.fromRGB(8, 8, 18)
+    BG.BackgroundColor3 = Color3.fromRGB(6, 8, 20)
     BG.BorderSizePixel = 0
     BG.ZIndex = 1
     BG.BackgroundTransparency = 1
@@ -84,190 +84,143 @@ function MyLib:ShowLoadingScreen(title, duration)
 
     local BGGradient = Instance.new("UIGradient")
     BGGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0,   Color3.fromRGB(5,  10, 30)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(10, 25, 70)),
-        ColorSequenceKeypoint.new(1,   Color3.fromRGB(5,  10, 30)),
+        ColorSequenceKeypoint.new(0,   Color3.fromRGB(4,  8,  25)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(8,  18, 55)),
+        ColorSequenceKeypoint.new(1,   Color3.fromRGB(4,  8,  25)),
     })
     BGGradient.Rotation = 135
     BGGradient.Parent = BG
 
-    -- Анимация градиента фона (медленное движение)
+    -- Медленная анимация фона
     task.spawn(function()
         local t = 0
         while BG and BG.Parent do
-            t += 0.005
-            BGGradient.Rotation = 135 + math.sin(t) * 20
+            t += 0.004
+            BGGradient.Rotation = 135 + math.sin(t) * 18
             task.wait(0.03)
-        end
-    end)
-
-    -- === ЦЕНТРАЛЬНАЯ КАРТОЧКА ===
-    local Card = Instance.new("Frame")
-    Card.Size = UDim2.new(0, 440, 0, 270)
-    Card.Position = UDim2.new(0.5, -220, 0.5, -135)
-    Card.BackgroundColor3 = Color3.fromRGB(12, 14, 32)
-    Card.BorderSizePixel = 0
-    Card.ZIndex = 2
-    Card.BackgroundTransparency = 1
-    Card.Parent = BG
-    corner(Card, 20)
-
-    local CardGradient = Instance.new("UIGradient")
-    CardGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0,   Color3.fromRGB(15, 18, 45)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(22, 30, 68)),
-        ColorSequenceKeypoint.new(1,   Color3.fromRGB(12, 15, 38)),
-    })
-    CardGradient.Rotation = 45
-    CardGradient.Parent = Card
-
-    local CardStroke = Instance.new("UIStroke")
-    CardStroke.Color = Color3.fromRGB(70, 130, 255)
-    CardStroke.Thickness = 1.5
-    CardStroke.Transparency = 1
-    CardStroke.Parent = Card
-
-    -- Пульсация бордера карточки
-    task.spawn(function()
-        while Card and Card.Parent do
-            tween(CardStroke, {Transparency = 0.1}, 1.2)
-            task.wait(1.2)
-            tween(CardStroke, {Transparency = 0.55}, 1.2)
-            task.wait(1.2)
         end
     end)
 
     -- === ЗАГОЛОВОК MAK1 HUB ===
     local Logo = Instance.new("TextLabel")
-    Logo.Size = UDim2.new(1, 0, 0, 75)
-    Logo.Position = UDim2.new(0, 0, 0, 18)
+    Logo.Size = UDim2.new(1, 0, 0, 90)
+    Logo.Position = UDim2.new(0, 0, 0.5, -130)
     Logo.BackgroundTransparency = 1
     Logo.Text = title or "MAK1 HUB"
     Logo.TextColor3 = Color3.fromRGB(255, 255, 255)
     Logo.Font = Enum.Font.GothamBold
-    Logo.TextSize = 50
+    Logo.TextSize = 58
     Logo.TextTransparency = 1
-    Logo.ZIndex = 3
-    Logo.Parent = Card
+    Logo.ZIndex = 2
+    Logo.Parent = BG
 
-    -- Градиент на тексте
     local LogoGradient = Instance.new("UIGradient")
     LogoGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0,   Color3.fromRGB(80,  160, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(170, 100, 255)),
-        ColorSequenceKeypoint.new(1,   Color3.fromRGB(80,  210, 255)),
+        ColorSequenceKeypoint.new(0,   Color3.fromRGB(70,  150, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(160, 90,  255)),
+        ColorSequenceKeypoint.new(1,   Color3.fromRGB(70,  200, 255)),
     })
     LogoGradient.Rotation = 0
     LogoGradient.Parent = Logo
 
-    -- Плавная анимация градиента текста
     task.spawn(function()
         local t = 0
         while Logo and Logo.Parent do
-            t += 0.012
-            LogoGradient.Offset = Vector2.new(math.sin(t) * 0.4, 0)
+            t += 0.010
+            LogoGradient.Offset = Vector2.new(math.sin(t) * 0.35, 0)
             task.wait(0.03)
         end
     end)
 
     -- === ПОДЗАГОЛОВОК ===
     local Sub = Instance.new("TextLabel")
-    Sub.Size = UDim2.new(1, 0, 0, 22)
-    Sub.Position = UDim2.new(0, 0, 0, 92)
+    Sub.Size = UDim2.new(1, 0, 0, 24)
+    Sub.Position = UDim2.new(0, 0, 0.5, -42)
     Sub.BackgroundTransparency = 1
     Sub.Text = "Loading, please wait..."
-    Sub.TextColor3 = Color3.fromRGB(120, 145, 200)
+    Sub.TextColor3 = Color3.fromRGB(110, 135, 190)
     Sub.Font = Enum.Font.Gotham
-    Sub.TextSize = 14
+    Sub.TextSize = 15
     Sub.TextTransparency = 1
-    Sub.ZIndex = 3
-    Sub.Parent = Card
+    Sub.ZIndex = 2
+    Sub.Parent = BG
 
-    -- === РАЗДЕЛИТЕЛЬ ===
-    local Divider = Instance.new("Frame")
-    Divider.Size = UDim2.new(0, 0, 0, 1)
-    Divider.Position = UDim2.new(0.5, 0, 0, 127)
-    Divider.AnchorPoint = Vector2.new(0.5, 0)
-    Divider.BackgroundColor3 = Color3.fromRGB(80, 140, 255)
-    Divider.BackgroundTransparency = 0.4
-    Divider.BorderSizePixel = 0
-    Divider.ZIndex = 3
-    Divider.Parent = Card
-
-    -- === ПРОГРЕСС-БАР ===
+    -- === ПРОГРЕСС-БАР ТРЕК (фон) ===
     local BarBG = Instance.new("Frame")
-    BarBG.Size = UDim2.new(0, 340, 0, 8)
-    BarBG.Position = UDim2.new(0.5, -170, 0, 158)
-    BarBG.BackgroundColor3 = Color3.fromRGB(20, 25, 55)
+    BarBG.Size = UDim2.new(0, 420, 0, 7)
+    BarBG.Position = UDim2.new(0.5, -210, 0.5, 10)
+    BarBG.BackgroundColor3 = Color3.fromRGB(18, 22, 50)
     BarBG.BorderSizePixel = 0
-    BarBG.ZIndex = 3
+    BarBG.ZIndex = 2
     BarBG.BackgroundTransparency = 1
-    BarBG.Parent = Card
+    BarBG.Parent = BG
     corner(BarBG, 4)
 
-    local BarStroke = Instance.new("UIStroke")
-    BarStroke.Color = Color3.fromRGB(50, 100, 220)
-    BarStroke.Thickness = 1
-    BarStroke.Transparency = 0.5
-    BarStroke.Parent = BarBG
+    local BarBGStroke = Instance.new("UIStroke")
+    BarBGStroke.Color = Color3.fromRGB(45, 90, 200)
+    BarBGStroke.Thickness = 1
+    BarBGStroke.Transparency = 0.55
+    BarBGStroke.Parent = BarBG
 
+    -- === ЗАПОЛНЕНИЕ — слева направо ===
     local BarFill = Instance.new("Frame")
-    BarFill.Size = UDim2.new(0, 0, 1, 0)
-    BarFill.BackgroundColor3 = Color3.fromRGB(80, 150, 255)
+    BarFill.Size = UDim2.new(0, 0, 1, 0)   -- начинаем с 0 ширины
+    BarFill.Position = UDim2.new(0, 0, 0, 0) -- якорь строго слева
+    BarFill.BackgroundColor3 = Color3.fromRGB(70, 140, 255)
     BarFill.BorderSizePixel = 0
-    BarFill.ZIndex = 4
+    BarFill.ZIndex = 3
     BarFill.Parent = BarBG
     corner(BarFill, 4)
 
-    -- Градиент прогресс-бара
     local BarGradient = Instance.new("UIGradient")
     BarGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0,   Color3.fromRGB(55,  120, 255)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(140, 80,  255)),
-        ColorSequenceKeypoint.new(1,   Color3.fromRGB(55,  180, 255)),
+        ColorSequenceKeypoint.new(0,   Color3.fromRGB(50,  115, 255)),
+        ColorSequenceKeypoint.new(0.45, Color3.fromRGB(130, 70,  255)),
+        ColorSequenceKeypoint.new(1,   Color3.fromRGB(50,  175, 255)),
     })
     BarGradient.Parent = BarFill
 
-    -- Блик
+    -- Блик сверху
     local BarShine = Instance.new("Frame")
-    BarShine.Size = UDim2.new(1, 0, 0.5, 0)
+    BarShine.Size = UDim2.new(1, 0, 0.45, 0)
+    BarShine.Position = UDim2.new(0, 0, 0, 0)
     BarShine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    BarShine.BackgroundTransparency = 0.82
+    BarShine.BackgroundTransparency = 0.80
     BarShine.BorderSizePixel = 0
-    BarShine.ZIndex = 5
+    BarShine.ZIndex = 4
     BarShine.Parent = BarFill
     corner(BarShine, 4)
 
     -- === ПРОЦЕНТ ===
     local PctLabel = Instance.new("TextLabel")
-    PctLabel.Size = UDim2.new(1, 0, 0, 26)
-    PctLabel.Position = UDim2.new(0, 0, 0, 175)
+    PctLabel.Size = UDim2.new(1, 0, 0, 28)
+    PctLabel.Position = UDim2.new(0, 0, 0.5, 26)
     PctLabel.BackgroundTransparency = 1
     PctLabel.Text = "0%"
-    PctLabel.TextColor3 = Color3.fromRGB(110, 175, 255)
+    PctLabel.TextColor3 = Color3.fromRGB(100, 168, 255)
     PctLabel.Font = Enum.Font.GothamBold
-    PctLabel.TextSize = 15
+    PctLabel.TextSize = 16
     PctLabel.TextTransparency = 1
-    PctLabel.ZIndex = 3
-    PctLabel.Parent = Card
+    PctLabel.ZIndex = 2
+    PctLabel.Parent = BG
 
     -- === СПИННЕР (5 точек, волна) ===
     local SpinFrame = Instance.new("Frame")
-    SpinFrame.Size = UDim2.new(0, 130, 0, 16)
-    SpinFrame.Position = UDim2.new(0.5, -65, 0, 220)
+    SpinFrame.Size = UDim2.new(0, 130, 0, 14)
+    SpinFrame.Position = UDim2.new(0.5, -65, 0.5, 70)
     SpinFrame.BackgroundTransparency = 1
-    SpinFrame.ZIndex = 3
-    SpinFrame.Parent = Card
+    SpinFrame.ZIndex = 2
+    SpinFrame.Parent = BG
 
     local dots = {}
     for i = 1, 5 do
         local dot = Instance.new("Frame")
-        dot.Size = UDim2.new(0, 10, 0, 10)
-        dot.Position = UDim2.new(0, (i - 1) * 28, 0.5, -5)
+        dot.Size = UDim2.new(0, 9, 0, 9)
+        dot.Position = UDim2.new(0, (i - 1) * 28, 0.5, -4)
         dot.BackgroundColor3 = Color3.fromRGB(80, 150, 255)
-        dot.BackgroundTransparency = 0.7
+        dot.BackgroundTransparency = 0.8
         dot.BorderSizePixel = 0
-        dot.ZIndex = 4
+        dot.ZIndex = 3
         dot.Parent = SpinFrame
         corner(dot, 5)
         table.insert(dots, dot)
@@ -279,11 +232,11 @@ function MyLib:ShowLoadingScreen(title, duration)
             for i, d in ipairs(dots) do
                 local wave = math.sin(t * 4 - (i - 1) * 1.2)
                 local alpha = (wave + 1) / 2
-                d.BackgroundTransparency = 1 - alpha * 0.9
+                d.BackgroundTransparency = 1 - alpha * 0.88
                 d.BackgroundColor3 = Color3.fromRGB(
-                    60  + alpha * 80,
-                    120 + alpha * 60,
-                    210 + alpha * 45
+                    55  + alpha * 85,
+                    115 + alpha * 65,
+                    205 + alpha * 50
                 )
             end
             t += 0.05
@@ -294,26 +247,16 @@ function MyLib:ShowLoadingScreen(title, duration)
     -- ╔══════════════════════════════════════════╗
     -- ║              FADE IN                     ║
     -- ╚══════════════════════════════════════════╝
-    tween(BG,   {BackgroundTransparency = 0},   0.5)
-    task.delay(0.1, function()
-        tween(Card,     {BackgroundTransparency = 0},   0.5)
-        tween(CardStroke, {Transparency = 0.3},         0.6)
-        tween(Logo,     {TextTransparency = 0},         0.6)
-        tween(Sub,      {TextTransparency = 0},         0.7)
-        tween(BarBG,    {BackgroundTransparency = 0},   0.5)
-        tween(PctLabel, {TextTransparency = 0},         0.7)
-    end)
-
-    -- Divider разворачивается
-    task.delay(0.35, function()
-        tween(Divider, {
-            Size = UDim2.new(0.72, 0, 0, 1),
-            Position = UDim2.new(0.14, 0, 0, 127)
-        }, 0.55)
+    tween(BG, {BackgroundTransparency = 0}, 0.55)
+    task.delay(0.15, function()
+        tween(Logo,     {TextTransparency = 0}, 0.65)
+        tween(Sub,      {TextTransparency = 0}, 0.75)
+        tween(BarBG,    {BackgroundTransparency = 0}, 0.55)
+        tween(PctLabel, {TextTransparency = 0}, 0.75)
     end)
 
     -- ╔══════════════════════════════════════════╗
-    -- ║             ПРОГРЕСС                     ║
+    -- ║     ПРОГРЕСС — строго слева направо      ║
     -- ╚══════════════════════════════════════════╝
     local startTime = tick()
     task.spawn(function()
@@ -321,8 +264,9 @@ function MyLib:ShowLoadingScreen(title, duration)
             local elapsed = tick() - startTime
             local pct = math.min(elapsed / dur, 0.95)
             PctLabel.Text = math.floor(pct * 100) .. "%"
-            tween(BarFill, {Size = UDim2.new(pct, 0, 1, 0)}, 0.15)
-            task.wait(0.1)
+            -- Size.X.Scale от 0 до pct — заполняет слева направо
+            BarFill.Size = UDim2.new(pct, 0, 1, 0)
+            task.wait(0.05)
         end
     end)
 
@@ -330,18 +274,21 @@ function MyLib:ShowLoadingScreen(title, duration)
     -- ║              FADE OUT                    ║
     -- ╚══════════════════════════════════════════╝
     task.delay(dur, function()
-        tween(BarFill, {Size = UDim2.new(1, 0, 1, 0)}, 0.3)
+        BarFill.Size = UDim2.new(1, 0, 1, 0)
         PctLabel.Text = "100%"
-        task.wait(0.45)
+        task.wait(0.5)
 
-        tween(Logo,      {TextTransparency = 1}, 0.4)
-        tween(Sub,       {TextTransparency = 1}, 0.4)
-        tween(PctLabel,  {TextTransparency = 1}, 0.4)
-        tween(CardStroke,{Transparency = 1},     0.4)
-        tween(Card,      {BackgroundTransparency = 1}, 0.5)
-        tween(BG,        {BackgroundTransparency = 1}, 0.6)
+        tween(Logo,     {TextTransparency = 1}, 0.45)
+        tween(Sub,      {TextTransparency = 1}, 0.45)
+        tween(PctLabel, {TextTransparency = 1}, 0.45)
+        tween(BarBG,    {BackgroundTransparency = 1}, 0.45)
+        for _, d in ipairs(dots) do
+            tween(d, {BackgroundTransparency = 1}, 0.35)
+        end
+        task.wait(0.1)
+        tween(BG, {BackgroundTransparency = 1}, 0.6)
 
-        task.wait(0.7)
+        task.wait(0.75)
         LoadingGui:Destroy()
     end)
 
