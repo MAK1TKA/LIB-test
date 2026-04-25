@@ -65,7 +65,7 @@ function MyLib:ShowLoadingScreen(title, duration)
     LoadingScreen.Name = "LoadingScreen"
     LoadingScreen.Size = UDim2.new(1, 0, 1, 0)
     LoadingScreen.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-    LoadingScreen.BackgroundTransparency = 0
+    LoadingScreen.BackgroundTransparency = 1  -- Начинаем прозрачным
     LoadingScreen.BorderSizePixel = 0
     LoadingScreen.ZIndex = 1000
     LoadingScreen.Parent = playerGui
@@ -80,56 +80,174 @@ function MyLib:ShowLoadingScreen(title, duration)
     UIGradient.Rotation = 45
     UIGradient.Parent = LoadingScreen
 
-    -- Title with logo effect
+    -- Основной контейнер для центрирования
+    local Container = Instance.new("Frame")
+    Container.Size = UDim2.new(1, 0, 1, 0)
+    Container.BackgroundTransparency = 1
+    Container.BorderSizePixel = 0
+    Container.ZIndex = 1001
+    Container.Parent = LoadingScreen
+
+    -- Title "MAK1 HUB"
     local Title = Instance.new("TextLabel")
     Title.Size = UDim2.new(1, 0, 0, 80)
-    Title.Position = UDim2.new(0, 0, 0.5, -40)
+    Title.Position = UDim2.new(0, 0, 0.5, -120)
     Title.BackgroundTransparency = 1
     Title.Text = title or "MAK1 HUB"
     Title.TextColor3 = Color3.fromRGB(100, 180, 255)
     Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 48
-    Title.ZIndex = 1001
-    Title.Parent = LoadingScreen
+    Title.TextSize = 56
+    Title.TextTransparency = 1  -- Начинаем прозрачным
+    Title.ZIndex = 1002
+    Title.Parent = Container
 
-    -- Loading bar background
-    local BarBg = Instance.new("Frame")
-    BarBg.Size = UDim2.new(0, 300, 0, 8)
-    BarBg.Position = UDim2.new(0.5, -150, 0.5, 60)
-    BarBg.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    BarBg.BorderSizePixel = 0
-    BarBg.ZIndex = 1001
-    BarBg.Parent = LoadingScreen
-    corner(BarBg, 4)
+    -- Вращающийся круг (Spinner)
+    local SpinnerContainer = Instance.new("Frame")
+    SpinnerContainer.Size = UDim2.new(0, 60, 0, 60)
+    SpinnerContainer.Position = UDim2.new(0.5, -30, 0.5, -30)
+    SpinnerContainer.BackgroundTransparency = 1
+    SpinnerContainer.BorderSizePixel = 0
+    SpinnerContainer.ZIndex = 1002
+    SpinnerContainer.Parent = Container
 
-    -- Loading bar fill
-    local BarFill = Instance.new("Frame")
-    BarFill.Size = UDim2.new(0, 0, 1, 0)
-    BarFill.BackgroundColor3 = Color3.fromRGB(100, 180, 255)
-    BarFill.BorderSizePixel = 0
-    BarFill.ZIndex = 1002
-    BarFill.Parent = BarBg
-    corner(BarFill, 4)
+    -- Создаем вращающиеся элементы (кольцо из 12 линий)
+    local spinnerLines = {}
+    for i = 1, 12 do
+        local Line = Instance.new("Frame")
+        Line.Size = UDim2.new(0, 4, 0, 12)
+        Line.BackgroundColor3 = Color3.fromRGB(100, 180, 255)
+        Line.BorderSizePixel = 0
+        Line.ZIndex = 1003
+        Line.Parent = SpinnerContainer
 
-    -- Animate loading bar
-    local startTime = tick()
-    local function updateBar()
-        local elapsed = tick() - startTime
-        local progress = math.min(elapsed / (duration or 3), 1)
-        BarFill.Size = UDim2.new(progress, 0, 1, 0)
-        if progress < 1 then
-            task.wait(0.02)
-            updateBar()
-        end
+        local angle = (i - 1) * (360 / 12)
+        local rad = math.rad(angle)
+        local x = math.cos(rad) * 20
+        local y = math.sin(rad) * 20
+
+        Line.Position = UDim2.new(0.5, x - 2, 0.5, y - 6)
+        Line.BackgroundTransparency = 0.3 + (i / 12) * 0.6
+
+        table.insert(spinnerLines, Line)
     end
-    task.spawn(updateBar)
 
-    -- Fade out and remove
+    -- Текст "Loading..." под кругом
+    local LoadingText = Instance.new("TextLabel")
+    LoadingText.Size = UDim2.new(1, 0, 0, 40)
+    LoadingText.Position = UDim2.new(0, 0, 0.5, 50)
+    LoadingText.BackgroundTransparency = 1
+    LoadingText.Text = "Loading..."
+    LoadingText.TextColor3 = Color3.fromRGB(150, 180, 220)
+    LoadingText.Font = Enum.Font.Gotham
+    LoadingText.TextSize = 18
+    LoadingText.TextTransparency = 1  -- Начинаем прозрачным
+    LoadingText.ZIndex = 1002
+    LoadingText.Parent = Container
+
+    -- Прогресс-бар
+    local ProgressBarBg = Instance.new("Frame")
+    ProgressBarBg.Size = UDim2.new(0, 300, 0, 6)
+    ProgressBarBg.Position = UDim2.new(0.5, -150, 0.5, 110)
+    ProgressBarBg.BackgroundColor3 = Color3.fromRGB(30, 40, 70)
+    ProgressBarBg.BorderSizePixel = 0
+    ProgressBarBg.ZIndex = 1002
+    ProgressBarBg.Parent = Container
+    corner(ProgressBarBg, 3)
+
+    local ProgressBarStroke = Instance.new("UIStroke")
+    ProgressBarStroke.Color = Color3.fromRGB(80, 140, 255)
+    ProgressBarStroke.Thickness = 1
+    ProgressBarStroke.Transparency = 0.5
+    ProgressBarStroke.Parent = ProgressBarBg
+
+    -- Заполнение прогресс-бара
+    local ProgressBarFill = Instance.new("Frame")
+    ProgressBarFill.Size = UDim2.new(0, 0, 1, 0)
+    ProgressBarFill.BackgroundColor3 = Color3.fromRGB(100, 180, 255)
+    ProgressBarFill.BorderSizePixel = 0
+    ProgressBarFill.ZIndex = 1003
+    ProgressBarFill.Parent = ProgressBarBg
+    corner(ProgressBarFill, 3)
+
+    -- Процент текст
+    local PercentLabel = Instance.new("TextLabel")
+    PercentLabel.Size = UDim2.new(1, 0, 0, 30)
+    PercentLabel.Position = UDim2.new(0, 0, 0.5, 125)
+    PercentLabel.BackgroundTransparency = 1
+    PercentLabel.Text = "0%"
+    PercentLabel.TextColor3 = Color3.fromRGB(100, 180, 255)
+    PercentLabel.Font = Enum.Font.GothamBold
+    PercentLabel.TextSize = 20
+    PercentLabel.TextTransparency = 1  -- Начинаем прозрачным
+    PercentLabel.ZIndex = 1002
+    PercentLabel.Parent = Container
+
+    -- ПЛАВНОЕ ПОЯВЛЕНИЕ (Fade In)
+    tween(LoadingScreen, {BackgroundTransparency = 0}, 0.4)
+    tween(Title, {TextTransparency = 0}, 0.5)
+    tween(LoadingText, {TextTransparency = 0}, 0.5)
+    tween(PercentLabel, {TextTransparency = 0}, 0.5)
+    tween(ProgressBarBg, {BackgroundTransparency = 0}, 0.4)
+    
+    -- Анимация появления линий спиннера
+    for i, line in ipairs(spinnerLines) do
+        task.delay((i - 1) * 0.03, function()
+            tween(line, {BackgroundTransparency = 0.3 + (i / 12) * 0.6}, 0.3)
+        end)
+    end
+
+    -- Вращение спиннера
+    local spinAngle = 0
+    task.spawn(function()
+        while LoadingScreen and LoadingScreen.Parent do
+            spinAngle = spinAngle + 6
+            for i, line in ipairs(spinnerLines) do
+                local angle = (i - 1) * (360 / 12) + spinAngle
+                local rad = math.rad(angle)
+                local x = math.cos(rad) * 20
+                local y = math.sin(rad) * 20
+                line.Position = UDim2.new(0.5, x - 2, 0.5, y - 6)
+            end
+            task.wait(0.02)
+        end
+    end)
+
+    -- Прогресс с плавной анимацией
+    local startTime = tick()
+    task.spawn(function()
+        while LoadingScreen and LoadingScreen.Parent do
+            local elapsed = tick() - startTime
+            local progress = math.min(elapsed / (duration or 3), 0.95)  -- До 95% без ускорения в конце
+            
+            local percent = math.floor(progress * 100)
+            PercentLabel.Text = percent .. "%"
+            
+            tween(ProgressBarFill, {Size = UDim2.new(progress, 0, 1, 0)}, 0.1)
+            
+            task.wait(0.1)
+        end
+    end)
+
+    -- ПЛАВНОЕ ИСЧЕЗНОВЕНИЕ (Fade Out) после duration
     task.delay(duration or 3, function()
+        -- Финальное заполнение на 100%
+        tween(ProgressBarFill, {Size = UDim2.new(1, 0, 1, 0)}, 0.3)
+        PercentLabel.Text = "100%"
+        
+        task.wait(0.5)
+        
+        -- Плавное исчезновение всего
         tween(LoadingScreen, {BackgroundTransparency = 1}, 0.5)
         tween(Title, {TextTransparency = 1}, 0.5)
-        tween(BarBg, {BackgroundTransparency = 1}, 0.5)
-        task.wait(0.55)
+        tween(LoadingText, {TextTransparency = 1}, 0.5)
+        tween(PercentLabel, {TextTransparency = 1}, 0.5)
+        tween(ProgressBarBg, {BackgroundTransparency = 1}, 0.5)
+        
+        for i, line in ipairs(spinnerLines) do
+            tween(line, {BackgroundTransparency = 1}, 0.4)
+        end
+        
+        task.wait(0.6)
         LoadingScreen:Destroy()
     end)
 
