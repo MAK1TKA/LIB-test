@@ -143,107 +143,203 @@ function MyLib:ShowKeyPrompt(callback)
     KeyPromptGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     KeyPromptGui.Parent = playerGui
 
-    -- Background blur effect
+    -- Background blur effect - начинает прозрачным
     local BgOverlay = Instance.new("Frame")
     BgOverlay.Size = UDim2.new(1, 0, 1, 0)
     BgOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    BgOverlay.BackgroundTransparency = 0.7
+    BgOverlay.BackgroundTransparency = 1
     BgOverlay.BorderSizePixel = 0
     BgOverlay.ZIndex = 999
     BgOverlay.Parent = KeyPromptGui
 
-    -- Main frame
+    -- Main container для центрирования
+    local Container = Instance.new("Frame")
+    Container.Size = UDim2.new(1, 0, 1, 0)
+    Container.BackgroundTransparency = 1
+    Container.BorderSizePixel = 0
+    Container.ZIndex = 1000
+    Container.Parent = KeyPromptGui
+
+    -- Main frame - красивая карточка
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
-    MainFrame.Size = UDim2.new(0, 400, 0, 250)
-    MainFrame.Position = UDim2.new(0.5, -200, 0.5, -125)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    MainFrame.Size = UDim2.new(0, 500, 0, 320)
+    MainFrame.Position = UDim2.new(0.5, -250, 0.5, -160)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 35)
     MainFrame.BorderSizePixel = 0
-    MainFrame.ZIndex = 1000
-    MainFrame.Parent = KeyPromptGui
-    corner(MainFrame, 12)
-    stroke(MainFrame, Color3.fromRGB(100, 180, 255), 2)
+    MainFrame.ZIndex = 1001
+    MainFrame.Parent = Container
+    corner(MainFrame, 16)
 
-    -- Title
+    -- Gradient для фона карточки
+    local CardGradient = Instance.new("UIGradient")
+    CardGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 15, 35)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(20, 25, 50)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 35))
+    })
+    CardGradient.Rotation = 45
+    CardGradient.Parent = MainFrame
+
+    -- Красивый бордер
+    local BorderStroke = Instance.new("UIStroke")
+    BorderStroke.Color = Color3.fromRGB(80, 140, 255)
+    BorderStroke.Thickness = 2
+    BorderStroke.Transparency = 0.3
+    BorderStroke.Parent = MainFrame
+
+    -- Title - "MAK1 HUB" красиво
     local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(1, 0, 0, 50)
+    Title.Size = UDim2.new(1, 0, 0, 70)
+    Title.Position = UDim2.new(0, 0, 0, 0)
     Title.BackgroundTransparency = 1
-    Title.Text = "Enter Key"
+    Title.Text = "MAK1 HUB"
     Title.TextColor3 = Color3.fromRGB(100, 180, 255)
     Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 24
-    Title.ZIndex = 1001
+    Title.TextSize = 48
+    Title.TextScaled = false
+    Title.ZIndex = 1002
     Title.Parent = MainFrame
 
-    -- Input field
+    -- Subtitle
+    local Subtitle = Instance.new("TextLabel")
+    Subtitle.Size = UDim2.new(1, 0, 0, 25)
+    Subtitle.Position = UDim2.new(0, 0, 0, 55)
+    Subtitle.BackgroundTransparency = 1
+    Subtitle.Text = "Enter Your Key"
+    Subtitle.TextColor3 = Color3.fromRGB(150, 170, 200)
+    Subtitle.Font = Enum.Font.Gotham
+    Subtitle.TextSize = 14
+    Subtitle.ZIndex = 1002
+    Subtitle.Parent = MainFrame
+
+    -- Divider line
+    local Divider = Instance.new("Frame")
+    Divider.Size = UDim2.new(1, -40, 0, 1)
+    Divider.Position = UDim2.new(0, 20, 0, 95)
+    Divider.BackgroundColor3 = Color3.fromRGB(80, 140, 255)
+    Divider.BackgroundTransparency = 0.5
+    Divider.BorderSizePixel = 0
+    Divider.ZIndex = 1002
+    Divider.Parent = MainFrame
+
+    -- Input field - минималистичный
     local InputField = Instance.new("TextBox")
-    InputField.Size = UDim2.new(0.8, 0, 0, 40)
-    InputField.Position = UDim2.new(0.1, 0, 0, 70)
-    InputField.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    InputField.Size = UDim2.new(0.85, 0, 0, 50)
+    InputField.Position = UDim2.new(0.075, 0, 0, 125)
+    InputField.BackgroundColor3 = Color3.fromRGB(20, 25, 50)
     InputField.TextColor3 = Color3.fromRGB(220, 220, 220)
-    InputField.PlaceholderColor3 = Color3.fromRGB(100, 100, 100)
-    InputField.PlaceholderText = "Enter your key..."
-    InputField.Font = Enum.Font.Gotham
-    InputField.TextSize = 16
+    InputField.PlaceholderColor3 = Color3.fromRGB(120, 140, 180)
+    InputField.PlaceholderText = "Paste your key here..."
+    InputField.Font = Enum.Font.GothamBold
+    InputField.TextSize = 18
     InputField.BorderSizePixel = 0
-    InputField.ZIndex = 1001
+    InputField.ZIndex = 1002
     InputField.Parent = MainFrame
     InputField.ClearTextOnFocus = false
-    corner(InputField, 6)
-    stroke(InputField, Color3.fromRGB(100, 180, 255), 1)
+    corner(InputField, 8)
 
-    local pad = Instance.new("UIPadding")
-    pad.PaddingLeft = UDim.new(0, 12)
-    pad.Parent = InputField
+    local InputStroke = Instance.new("UIStroke")
+    InputStroke.Color = Color3.fromRGB(80, 140, 255)
+    InputStroke.Thickness = 1.5
+    InputStroke.Transparency = 0.4
+    InputStroke.Parent = InputField
 
-    -- Submit button
+    local InputPad = Instance.new("UIPadding")
+    InputPad.PaddingLeft = UDim.new(0, 16)
+    InputPad.PaddingRight = UDim.new(0, 16)
+    InputPad.Parent = InputField
+
+    -- Submit button - красивая кнопка
     local SubmitBtn = Instance.new("TextButton")
-    SubmitBtn.Size = UDim2.new(0.35, 0, 0, 35)
-    SubmitBtn.Position = UDim2.new(0.325, 0, 0, 130)
-    SubmitBtn.BackgroundColor3 = Color3.fromRGB(100, 180, 255)
-    SubmitBtn.Text = "Submit"
+    SubmitBtn.Size = UDim2.new(0.85, 0, 0, 45)
+    SubmitBtn.Position = UDim2.new(0.075, 0, 0, 200)
+    SubmitBtn.BackgroundColor3 = Color3.fromRGB(80, 140, 255)
+    SubmitBtn.Text = "SUBMIT"
     SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     SubmitBtn.Font = Enum.Font.GothamBold
-    SubmitBtn.TextSize = 14
+    SubmitBtn.TextSize = 16
     SubmitBtn.BorderSizePixel = 0
-    SubmitBtn.ZIndex = 1001
+    SubmitBtn.AutoButtonColor = false
+    SubmitBtn.ZIndex = 1002
     SubmitBtn.Parent = MainFrame
-    corner(SubmitBtn, 6)
+    corner(SubmitBtn, 8)
 
-    -- Status label
+    local BtnStroke = Instance.new("UIStroke")
+    BtnStroke.Color = Color3.fromRGB(100, 180, 255)
+    BtnStroke.Thickness = 1
+    BtnStroke.Parent = SubmitBtn
+
+    -- Status label - для ошибок
     local StatusLabel = Instance.new("TextLabel")
-    StatusLabel.Size = UDim2.new(0.8, 0, 0, 30)
-    StatusLabel.Position = UDim2.new(0.1, 0, 0, 180)
+    StatusLabel.Size = UDim2.new(0.85, 0, 0, 30)
+    StatusLabel.Position = UDim2.new(0.075, 0, 0, 265)
     StatusLabel.BackgroundTransparency = 1
     StatusLabel.Text = ""
     StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
     StatusLabel.Font = Enum.Font.Gotham
-    StatusLabel.TextSize = 12
-    StatusLabel.ZIndex = 1001
+    StatusLabel.TextSize = 13
+    StatusLabel.ZIndex = 1002
     StatusLabel.Parent = MainFrame
+
+    -- Плавное появление
+    MainFrame.BackgroundTransparency = 1
+    Title.TextTransparency = 1
+    Subtitle.TextTransparency = 1
+    InputField.BackgroundTransparency = 1
+    SubmitBtn.BackgroundTransparency = 1
+    InputField.TextTransparency = 1
+
+    tween(BgOverlay, {BackgroundTransparency = 0.6}, 0.4)
+    tween(MainFrame, {BackgroundTransparency = 0}, 0.5)
+    tween(Title, {TextTransparency = 0}, 0.5)
+    tween(Subtitle, {TextTransparency = 0}, 0.5)
+    tween(InputField, {BackgroundTransparency = 0}, 0.5)
+    tween(SubmitBtn, {BackgroundTransparency = 0}, 0.5)
+    tween(InputField, {TextTransparency = 0}, 0.5)
 
     local function submit()
         if callback(InputField.Text) then
-            tween(MainFrame, {BackgroundTransparency = 1}, 0.3)
-            tween(BgOverlay, {BackgroundTransparency = 1}, 0.3)
-            task.wait(0.35)
+            -- ✅ Правильный ключ - плавное исчезновение
+            StatusLabel.Text = "✓ Accepted"
+            StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+
+            task.wait(0.3)
+
+            tween(BgOverlay, {BackgroundTransparency = 1}, 0.4)
+            tween(MainFrame, {BackgroundTransparency = 1}, 0.4)
+            tween(Title, {TextTransparency = 1}, 0.4)
+            tween(Subtitle, {TextTransparency = 1}, 0.4)
+            tween(InputField, {BackgroundTransparency = 1}, 0.4)
+            tween(SubmitBtn, {BackgroundTransparency = 1}, 0.4)
+
+            task.wait(0.5)
             KeyPromptGui:Destroy()
         else
-            StatusLabel.Text = "Invalid key!"
+            -- ❌ Неправильный ключ - красный эффект
+            StatusLabel.Text = "✗ Invalid Key"
             StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-            tween(InputField, {BackgroundColor3 = Color3.fromRGB(80, 30, 30)}, 0.15)
+
+            tween(InputField, {BackgroundColor3 = Color3.fromRGB(80, 30, 40)}, 0.15)
             task.wait(0.5)
-            tween(InputField, {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}, 0.15)
+            tween(InputField, {BackgroundColor3 = Color3.fromRGB(20, 25, 50)}, 0.3)
+
             InputField.Text = ""
+            task.wait(0.5)
+            StatusLabel.Text = ""
         end
     end
 
     SubmitBtn.MouseButton1Click:Connect(submit)
+
     SubmitBtn.MouseEnter:Connect(function()
-        tween(SubmitBtn, {BackgroundColor3 = Color3.fromRGB(120, 200, 255)}, 0.15)
+        tween(SubmitBtn, {BackgroundColor3 = Color3.fromRGB(100, 160, 255)}, 0.15)
+        BtnStroke.Transparency = 0
     end)
+
     SubmitBtn.MouseLeave:Connect(function()
-        tween(SubmitBtn, {BackgroundColor3 = Color3.fromRGB(100, 180, 255)}, 0.15)
+        tween(SubmitBtn, {BackgroundColor3 = Color3.fromRGB(80, 140, 255)}, 0.15)
+        BtnStroke.Transparency = 0.3
     end)
 
     InputField.FocusLost:Connect(function(entered)
