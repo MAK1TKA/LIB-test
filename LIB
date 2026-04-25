@@ -60,198 +60,292 @@ local function makeDraggable(frame, handle)
     end)
 end
 
+-- ╔══════════════════════════════════════════════╗
+-- ║           НОВЫЙ LOADING SCREEN               ║
+-- ╚══════════════════════════════════════════════╝
 function MyLib:ShowLoadingScreen(title, duration)
-    local LoadingScreen = Instance.new("Frame")
-    LoadingScreen.Name = "LoadingScreen"
-    LoadingScreen.Size = UDim2.new(1, 0, 1, 0)
-    LoadingScreen.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-    LoadingScreen.BackgroundTransparency = 1  -- Начинаем прозрачным
-    LoadingScreen.BorderSizePixel = 0
-    LoadingScreen.ZIndex = 1000
-    LoadingScreen.Parent = playerGui
+    local dur = duration or 3
 
-    -- Gradient background
-    local UIGradient = Instance.new("UIGradient")
-    UIGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 20, 50)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(20, 60, 120)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 20, 50))
+    local LoadingGui = Instance.new("ScreenGui")
+    LoadingGui.Name = "MAK1LoadingScreen"
+    LoadingGui.ResetOnSpawn = false
+    LoadingGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    LoadingGui.IgnoreGuiInset = true
+    LoadingGui.Parent = playerGui
+
+    -- === ПОЛНОЭКРАННЫЙ ФОН ===
+    local BG = Instance.new("Frame")
+    BG.Size = UDim2.new(1, 0, 1, 0)
+    BG.BackgroundColor3 = Color3.fromRGB(8, 8, 18)
+    BG.BorderSizePixel = 0
+    BG.ZIndex = 1
+    BG.BackgroundTransparency = 1
+    BG.Parent = LoadingGui
+
+    local BGGradient = Instance.new("UIGradient")
+    BGGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0,   Color3.fromRGB(5,  10, 30)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(10, 25, 70)),
+        ColorSequenceKeypoint.new(1,   Color3.fromRGB(5,  10, 30)),
     })
-    UIGradient.Rotation = 45
-    UIGradient.Parent = LoadingScreen
+    BGGradient.Rotation = 135
+    BGGradient.Parent = BG
 
-    -- Основной контейнер для центрирования
-    local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(1, 0, 1, 0)
-    Container.BackgroundTransparency = 1
-    Container.BorderSizePixel = 0
-    Container.ZIndex = 1001
-    Container.Parent = LoadingScreen
-
-    -- Title "MAK1 HUB"
-    local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(1, 0, 0, 80)
-    Title.Position = UDim2.new(0, 0, 0.5, -120)
-    Title.BackgroundTransparency = 1
-    Title.Text = title or "MAK1 HUB"
-    Title.TextColor3 = Color3.fromRGB(100, 180, 255)
-    Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 56
-    Title.TextTransparency = 1  -- Начинаем прозрачным
-    Title.ZIndex = 1002
-    Title.Parent = Container
-
-    -- Вращающийся круг (Spinner)
-    local SpinnerContainer = Instance.new("Frame")
-    SpinnerContainer.Size = UDim2.new(0, 60, 0, 60)
-    SpinnerContainer.Position = UDim2.new(0.5, -30, 0.5, -30)
-    SpinnerContainer.BackgroundTransparency = 1
-    SpinnerContainer.BorderSizePixel = 0
-    SpinnerContainer.ZIndex = 1002
-    SpinnerContainer.Parent = Container
-
-    -- Создаем вращающиеся элементы (кольцо из 12 линий)
-    local spinnerLines = {}
-    for i = 1, 12 do
-        local Line = Instance.new("Frame")
-        Line.Size = UDim2.new(0, 4, 0, 12)
-        Line.BackgroundColor3 = Color3.fromRGB(100, 180, 255)
-        Line.BorderSizePixel = 0
-        Line.ZIndex = 1003
-        Line.Parent = SpinnerContainer
-
-        local angle = (i - 1) * (360 / 12)
-        local rad = math.rad(angle)
-        local x = math.cos(rad) * 20
-        local y = math.sin(rad) * 20
-
-        Line.Position = UDim2.new(0.5, x - 2, 0.5, y - 6)
-        Line.BackgroundTransparency = 0.3 + (i / 12) * 0.6
-
-        table.insert(spinnerLines, Line)
-    end
-
-    -- Текст "Loading..." под кругом
-    local LoadingText = Instance.new("TextLabel")
-    LoadingText.Size = UDim2.new(1, 0, 0, 40)
-    LoadingText.Position = UDim2.new(0, 0, 0.5, 50)
-    LoadingText.BackgroundTransparency = 1
-    LoadingText.Text = "Loading..."
-    LoadingText.TextColor3 = Color3.fromRGB(150, 180, 220)
-    LoadingText.Font = Enum.Font.Gotham
-    LoadingText.TextSize = 18
-    LoadingText.TextTransparency = 1  -- Начинаем прозрачным
-    LoadingText.ZIndex = 1002
-    LoadingText.Parent = Container
-
-    -- Прогресс-бар
-    local ProgressBarBg = Instance.new("Frame")
-    ProgressBarBg.Size = UDim2.new(0, 300, 0, 6)
-    ProgressBarBg.Position = UDim2.new(0.5, -150, 0.5, 110)
-    ProgressBarBg.BackgroundColor3 = Color3.fromRGB(30, 40, 70)
-    ProgressBarBg.BorderSizePixel = 0
-    ProgressBarBg.ZIndex = 1002
-    ProgressBarBg.Parent = Container
-    corner(ProgressBarBg, 3)
-
-    local ProgressBarStroke = Instance.new("UIStroke")
-    ProgressBarStroke.Color = Color3.fromRGB(80, 140, 255)
-    ProgressBarStroke.Thickness = 1
-    ProgressBarStroke.Transparency = 0.5
-    ProgressBarStroke.Parent = ProgressBarBg
-
-    -- Заполнение прогресс-бара
-    local ProgressBarFill = Instance.new("Frame")
-    ProgressBarFill.Size = UDim2.new(0, 0, 1, 0)
-    ProgressBarFill.BackgroundColor3 = Color3.fromRGB(100, 180, 255)
-    ProgressBarFill.BorderSizePixel = 0
-    ProgressBarFill.ZIndex = 1003
-    ProgressBarFill.Parent = ProgressBarBg
-    corner(ProgressBarFill, 3)
-
-    -- Процент текст
-    local PercentLabel = Instance.new("TextLabel")
-    PercentLabel.Size = UDim2.new(1, 0, 0, 30)
-    PercentLabel.Position = UDim2.new(0, 0, 0.5, 125)
-    PercentLabel.BackgroundTransparency = 1
-    PercentLabel.Text = "0%"
-    PercentLabel.TextColor3 = Color3.fromRGB(100, 180, 255)
-    PercentLabel.Font = Enum.Font.GothamBold
-    PercentLabel.TextSize = 20
-    PercentLabel.TextTransparency = 1  -- Начинаем прозрачным
-    PercentLabel.ZIndex = 1002
-    PercentLabel.Parent = Container
-
-    -- ПЛАВНОЕ ПОЯВЛЕНИЕ (Fade In)
-    tween(LoadingScreen, {BackgroundTransparency = 0}, 0.4)
-    tween(Title, {TextTransparency = 0}, 0.5)
-    tween(LoadingText, {TextTransparency = 0}, 0.5)
-    tween(PercentLabel, {TextTransparency = 0}, 0.5)
-    tween(ProgressBarBg, {BackgroundTransparency = 0}, 0.4)
-    
-    -- Анимация появления линий спиннера
-    for i, line in ipairs(spinnerLines) do
-        task.delay((i - 1) * 0.03, function()
-            tween(line, {BackgroundTransparency = 0.3 + (i / 12) * 0.6}, 0.3)
-        end)
-    end
-
-    -- Вращение спиннера
-    local spinAngle = 0
+    -- Анимация градиента фона (медленное движение)
     task.spawn(function()
-        while LoadingScreen and LoadingScreen.Parent do
-            spinAngle = spinAngle + 6
-            for i, line in ipairs(spinnerLines) do
-                local angle = (i - 1) * (360 / 12) + spinAngle
-                local rad = math.rad(angle)
-                local x = math.cos(rad) * 20
-                local y = math.sin(rad) * 20
-                line.Position = UDim2.new(0.5, x - 2, 0.5, y - 6)
-            end
-            task.wait(0.02)
+        local t = 0
+        while BG and BG.Parent do
+            t += 0.005
+            BGGradient.Rotation = 135 + math.sin(t) * 20
+            task.wait(0.03)
         end
     end)
 
-    -- Прогресс с плавной анимацией
+    -- === ЦЕНТРАЛЬНАЯ КАРТОЧКА ===
+    local Card = Instance.new("Frame")
+    Card.Size = UDim2.new(0, 440, 0, 270)
+    Card.Position = UDim2.new(0.5, -220, 0.5, -135)
+    Card.BackgroundColor3 = Color3.fromRGB(12, 14, 32)
+    Card.BorderSizePixel = 0
+    Card.ZIndex = 2
+    Card.BackgroundTransparency = 1
+    Card.Parent = BG
+    corner(Card, 20)
+
+    local CardGradient = Instance.new("UIGradient")
+    CardGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0,   Color3.fromRGB(15, 18, 45)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(22, 30, 68)),
+        ColorSequenceKeypoint.new(1,   Color3.fromRGB(12, 15, 38)),
+    })
+    CardGradient.Rotation = 45
+    CardGradient.Parent = Card
+
+    local CardStroke = Instance.new("UIStroke")
+    CardStroke.Color = Color3.fromRGB(70, 130, 255)
+    CardStroke.Thickness = 1.5
+    CardStroke.Transparency = 1
+    CardStroke.Parent = Card
+
+    -- Пульсация бордера карточки
+    task.spawn(function()
+        while Card and Card.Parent do
+            tween(CardStroke, {Transparency = 0.1}, 1.2)
+            task.wait(1.2)
+            tween(CardStroke, {Transparency = 0.55}, 1.2)
+            task.wait(1.2)
+        end
+    end)
+
+    -- === ЗАГОЛОВОК MAK1 HUB ===
+    local Logo = Instance.new("TextLabel")
+    Logo.Size = UDim2.new(1, 0, 0, 75)
+    Logo.Position = UDim2.new(0, 0, 0, 18)
+    Logo.BackgroundTransparency = 1
+    Logo.Text = title or "MAK1 HUB"
+    Logo.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Logo.Font = Enum.Font.GothamBold
+    Logo.TextSize = 50
+    Logo.TextTransparency = 1
+    Logo.ZIndex = 3
+    Logo.Parent = Card
+
+    -- Градиент на тексте
+    local LogoGradient = Instance.new("UIGradient")
+    LogoGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0,   Color3.fromRGB(80,  160, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(170, 100, 255)),
+        ColorSequenceKeypoint.new(1,   Color3.fromRGB(80,  210, 255)),
+    })
+    LogoGradient.Rotation = 0
+    LogoGradient.Parent = Logo
+
+    -- Плавная анимация градиента текста
+    task.spawn(function()
+        local t = 0
+        while Logo and Logo.Parent do
+            t += 0.012
+            LogoGradient.Offset = Vector2.new(math.sin(t) * 0.4, 0)
+            task.wait(0.03)
+        end
+    end)
+
+    -- === ПОДЗАГОЛОВОК ===
+    local Sub = Instance.new("TextLabel")
+    Sub.Size = UDim2.new(1, 0, 0, 22)
+    Sub.Position = UDim2.new(0, 0, 0, 92)
+    Sub.BackgroundTransparency = 1
+    Sub.Text = "Loading, please wait..."
+    Sub.TextColor3 = Color3.fromRGB(120, 145, 200)
+    Sub.Font = Enum.Font.Gotham
+    Sub.TextSize = 14
+    Sub.TextTransparency = 1
+    Sub.ZIndex = 3
+    Sub.Parent = Card
+
+    -- === РАЗДЕЛИТЕЛЬ ===
+    local Divider = Instance.new("Frame")
+    Divider.Size = UDim2.new(0, 0, 0, 1)
+    Divider.Position = UDim2.new(0.5, 0, 0, 127)
+    Divider.AnchorPoint = Vector2.new(0.5, 0)
+    Divider.BackgroundColor3 = Color3.fromRGB(80, 140, 255)
+    Divider.BackgroundTransparency = 0.4
+    Divider.BorderSizePixel = 0
+    Divider.ZIndex = 3
+    Divider.Parent = Card
+
+    -- === ПРОГРЕСС-БАР ===
+    local BarBG = Instance.new("Frame")
+    BarBG.Size = UDim2.new(0, 340, 0, 8)
+    BarBG.Position = UDim2.new(0.5, -170, 0, 158)
+    BarBG.BackgroundColor3 = Color3.fromRGB(20, 25, 55)
+    BarBG.BorderSizePixel = 0
+    BarBG.ZIndex = 3
+    BarBG.BackgroundTransparency = 1
+    BarBG.Parent = Card
+    corner(BarBG, 4)
+
+    local BarStroke = Instance.new("UIStroke")
+    BarStroke.Color = Color3.fromRGB(50, 100, 220)
+    BarStroke.Thickness = 1
+    BarStroke.Transparency = 0.5
+    BarStroke.Parent = BarBG
+
+    local BarFill = Instance.new("Frame")
+    BarFill.Size = UDim2.new(0, 0, 1, 0)
+    BarFill.BackgroundColor3 = Color3.fromRGB(80, 150, 255)
+    BarFill.BorderSizePixel = 0
+    BarFill.ZIndex = 4
+    BarFill.Parent = BarBG
+    corner(BarFill, 4)
+
+    -- Градиент прогресс-бара
+    local BarGradient = Instance.new("UIGradient")
+    BarGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0,   Color3.fromRGB(55,  120, 255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(140, 80,  255)),
+        ColorSequenceKeypoint.new(1,   Color3.fromRGB(55,  180, 255)),
+    })
+    BarGradient.Parent = BarFill
+
+    -- Блик
+    local BarShine = Instance.new("Frame")
+    BarShine.Size = UDim2.new(1, 0, 0.5, 0)
+    BarShine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    BarShine.BackgroundTransparency = 0.82
+    BarShine.BorderSizePixel = 0
+    BarShine.ZIndex = 5
+    BarShine.Parent = BarFill
+    corner(BarShine, 4)
+
+    -- === ПРОЦЕНТ ===
+    local PctLabel = Instance.new("TextLabel")
+    PctLabel.Size = UDim2.new(1, 0, 0, 26)
+    PctLabel.Position = UDim2.new(0, 0, 0, 175)
+    PctLabel.BackgroundTransparency = 1
+    PctLabel.Text = "0%"
+    PctLabel.TextColor3 = Color3.fromRGB(110, 175, 255)
+    PctLabel.Font = Enum.Font.GothamBold
+    PctLabel.TextSize = 15
+    PctLabel.TextTransparency = 1
+    PctLabel.ZIndex = 3
+    PctLabel.Parent = Card
+
+    -- === СПИННЕР (5 точек, волна) ===
+    local SpinFrame = Instance.new("Frame")
+    SpinFrame.Size = UDim2.new(0, 130, 0, 16)
+    SpinFrame.Position = UDim2.new(0.5, -65, 0, 220)
+    SpinFrame.BackgroundTransparency = 1
+    SpinFrame.ZIndex = 3
+    SpinFrame.Parent = Card
+
+    local dots = {}
+    for i = 1, 5 do
+        local dot = Instance.new("Frame")
+        dot.Size = UDim2.new(0, 10, 0, 10)
+        dot.Position = UDim2.new(0, (i - 1) * 28, 0.5, -5)
+        dot.BackgroundColor3 = Color3.fromRGB(80, 150, 255)
+        dot.BackgroundTransparency = 0.7
+        dot.BorderSizePixel = 0
+        dot.ZIndex = 4
+        dot.Parent = SpinFrame
+        corner(dot, 5)
+        table.insert(dots, dot)
+    end
+
+    task.spawn(function()
+        local t = 0
+        while SpinFrame and SpinFrame.Parent do
+            for i, d in ipairs(dots) do
+                local wave = math.sin(t * 4 - (i - 1) * 1.2)
+                local alpha = (wave + 1) / 2
+                d.BackgroundTransparency = 1 - alpha * 0.9
+                d.BackgroundColor3 = Color3.fromRGB(
+                    60  + alpha * 80,
+                    120 + alpha * 60,
+                    210 + alpha * 45
+                )
+            end
+            t += 0.05
+            task.wait(0.03)
+        end
+    end)
+
+    -- ╔══════════════════════════════════════════╗
+    -- ║              FADE IN                     ║
+    -- ╚══════════════════════════════════════════╝
+    tween(BG,   {BackgroundTransparency = 0},   0.5)
+    task.delay(0.1, function()
+        tween(Card,     {BackgroundTransparency = 0},   0.5)
+        tween(CardStroke, {Transparency = 0.3},         0.6)
+        tween(Logo,     {TextTransparency = 0},         0.6)
+        tween(Sub,      {TextTransparency = 0},         0.7)
+        tween(BarBG,    {BackgroundTransparency = 0},   0.5)
+        tween(PctLabel, {TextTransparency = 0},         0.7)
+    end)
+
+    -- Divider разворачивается
+    task.delay(0.35, function()
+        tween(Divider, {
+            Size = UDim2.new(0.72, 0, 0, 1),
+            Position = UDim2.new(0.14, 0, 0, 127)
+        }, 0.55)
+    end)
+
+    -- ╔══════════════════════════════════════════╗
+    -- ║             ПРОГРЕСС                     ║
+    -- ╚══════════════════════════════════════════╝
     local startTime = tick()
     task.spawn(function()
-        while LoadingScreen and LoadingScreen.Parent do
+        while BarBG and BarBG.Parent do
             local elapsed = tick() - startTime
-            local progress = math.min(elapsed / (duration or 3), 0.95)  -- До 95% без ускорения в конце
-            
-            local percent = math.floor(progress * 100)
-            PercentLabel.Text = percent .. "%"
-            
-            tween(ProgressBarFill, {Size = UDim2.new(progress, 0, 1, 0)}, 0.1)
-            
+            local pct = math.min(elapsed / dur, 0.95)
+            PctLabel.Text = math.floor(pct * 100) .. "%"
+            tween(BarFill, {Size = UDim2.new(pct, 0, 1, 0)}, 0.15)
             task.wait(0.1)
         end
     end)
 
-    -- ПЛАВНОЕ ИСЧЕЗНОВЕНИЕ (Fade Out) после duration
-    task.delay(duration or 3, function()
-        -- Финальное заполнение на 100%
-        tween(ProgressBarFill, {Size = UDim2.new(1, 0, 1, 0)}, 0.3)
-        PercentLabel.Text = "100%"
-        
-        task.wait(0.5)
-        
-        -- Плавное исчезновение всего
-        tween(LoadingScreen, {BackgroundTransparency = 1}, 0.5)
-        tween(Title, {TextTransparency = 1}, 0.5)
-        tween(LoadingText, {TextTransparency = 1}, 0.5)
-        tween(PercentLabel, {TextTransparency = 1}, 0.5)
-        tween(ProgressBarBg, {BackgroundTransparency = 1}, 0.5)
-        
-        for i, line in ipairs(spinnerLines) do
-            tween(line, {BackgroundTransparency = 1}, 0.4)
-        end
-        
-        task.wait(0.6)
-        LoadingScreen:Destroy()
+    -- ╔══════════════════════════════════════════╗
+    -- ║              FADE OUT                    ║
+    -- ╚══════════════════════════════════════════╝
+    task.delay(dur, function()
+        tween(BarFill, {Size = UDim2.new(1, 0, 1, 0)}, 0.3)
+        PctLabel.Text = "100%"
+        task.wait(0.45)
+
+        tween(Logo,      {TextTransparency = 1}, 0.4)
+        tween(Sub,       {TextTransparency = 1}, 0.4)
+        tween(PctLabel,  {TextTransparency = 1}, 0.4)
+        tween(CardStroke,{Transparency = 1},     0.4)
+        tween(Card,      {BackgroundTransparency = 1}, 0.5)
+        tween(BG,        {BackgroundTransparency = 1}, 0.6)
+
+        task.wait(0.7)
+        LoadingGui:Destroy()
     end)
 
-    return LoadingScreen
+    return LoadingGui
 end
 
 function MyLib:ShowKeyPrompt(callback)
@@ -261,7 +355,6 @@ function MyLib:ShowKeyPrompt(callback)
     KeyPromptGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     KeyPromptGui.Parent = playerGui
 
-    -- Background blur effect - начинает прозрачным
     local BgOverlay = Instance.new("Frame")
     BgOverlay.Size = UDim2.new(1, 0, 1, 0)
     BgOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -270,7 +363,6 @@ function MyLib:ShowKeyPrompt(callback)
     BgOverlay.ZIndex = 999
     BgOverlay.Parent = KeyPromptGui
 
-    -- Main container для центрирования
     local Container = Instance.new("Frame")
     Container.Size = UDim2.new(1, 0, 1, 0)
     Container.BackgroundTransparency = 1
@@ -278,7 +370,6 @@ function MyLib:ShowKeyPrompt(callback)
     Container.ZIndex = 1000
     Container.Parent = KeyPromptGui
 
-    -- Main frame - красивая карточка
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Size = UDim2.new(0, 500, 0, 320)
@@ -289,7 +380,6 @@ function MyLib:ShowKeyPrompt(callback)
     MainFrame.Parent = Container
     corner(MainFrame, 16)
 
-    -- Gradient для фона карточки
     local CardGradient = Instance.new("UIGradient")
     CardGradient.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 15, 35)),
@@ -299,14 +389,12 @@ function MyLib:ShowKeyPrompt(callback)
     CardGradient.Rotation = 45
     CardGradient.Parent = MainFrame
 
-    -- Красивый бордер
     local BorderStroke = Instance.new("UIStroke")
     BorderStroke.Color = Color3.fromRGB(80, 140, 255)
     BorderStroke.Thickness = 2
     BorderStroke.Transparency = 0.3
     BorderStroke.Parent = MainFrame
 
-    -- Title - "MAK1 HUB" красиво
     local Title = Instance.new("TextLabel")
     Title.Size = UDim2.new(1, 0, 0, 70)
     Title.Position = UDim2.new(0, 0, 0, 0)
@@ -319,7 +407,6 @@ function MyLib:ShowKeyPrompt(callback)
     Title.ZIndex = 1002
     Title.Parent = MainFrame
 
-    -- Subtitle
     local Subtitle = Instance.new("TextLabel")
     Subtitle.Size = UDim2.new(1, 0, 0, 25)
     Subtitle.Position = UDim2.new(0, 0, 0, 55)
@@ -331,7 +418,6 @@ function MyLib:ShowKeyPrompt(callback)
     Subtitle.ZIndex = 1002
     Subtitle.Parent = MainFrame
 
-    -- Divider line
     local Divider = Instance.new("Frame")
     Divider.Size = UDim2.new(1, -40, 0, 1)
     Divider.Position = UDim2.new(0, 20, 0, 95)
@@ -341,7 +427,6 @@ function MyLib:ShowKeyPrompt(callback)
     Divider.ZIndex = 1002
     Divider.Parent = MainFrame
 
-    -- Input field - минималистичный
     local InputField = Instance.new("TextBox")
     InputField.Size = UDim2.new(0.85, 0, 0, 50)
     InputField.Position = UDim2.new(0.075, 0, 0, 125)
@@ -368,7 +453,6 @@ function MyLib:ShowKeyPrompt(callback)
     InputPad.PaddingRight = UDim.new(0, 16)
     InputPad.Parent = InputField
 
-    -- Submit button - красивая кнопка
     local SubmitBtn = Instance.new("TextButton")
     SubmitBtn.Size = UDim2.new(0.85, 0, 0, 45)
     SubmitBtn.Position = UDim2.new(0.075, 0, 0, 200)
@@ -388,7 +472,6 @@ function MyLib:ShowKeyPrompt(callback)
     BtnStroke.Thickness = 1
     BtnStroke.Parent = SubmitBtn
 
-    -- Status label - для ошибок
     local StatusLabel = Instance.new("TextLabel")
     StatusLabel.Size = UDim2.new(0.85, 0, 0, 30)
     StatusLabel.Position = UDim2.new(0.075, 0, 0, 265)
@@ -400,7 +483,6 @@ function MyLib:ShowKeyPrompt(callback)
     StatusLabel.ZIndex = 1002
     StatusLabel.Parent = MainFrame
 
-    -- Плавное появление
     MainFrame.BackgroundTransparency = 1
     Title.TextTransparency = 1
     Subtitle.TextTransparency = 1
@@ -418,30 +500,23 @@ function MyLib:ShowKeyPrompt(callback)
 
     local function submit()
         if callback(InputField.Text) then
-            -- ✅ Правильный ключ - плавное исчезновение
             StatusLabel.Text = "✓ Accepted"
             StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-
             task.wait(0.3)
-
             tween(BgOverlay, {BackgroundTransparency = 1}, 0.4)
             tween(MainFrame, {BackgroundTransparency = 1}, 0.4)
             tween(Title, {TextTransparency = 1}, 0.4)
             tween(Subtitle, {TextTransparency = 1}, 0.4)
             tween(InputField, {BackgroundTransparency = 1}, 0.4)
             tween(SubmitBtn, {BackgroundTransparency = 1}, 0.4)
-
             task.wait(0.5)
             KeyPromptGui:Destroy()
         else
-            -- ❌ Неправильный ключ - красный эффект
             StatusLabel.Text = "✗ Invalid Key"
             StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-
             tween(InputField, {BackgroundColor3 = Color3.fromRGB(80, 30, 40)}, 0.15)
             task.wait(0.5)
             tween(InputField, {BackgroundColor3 = Color3.fromRGB(20, 25, 50)}, 0.3)
-
             InputField.Text = ""
             task.wait(0.5)
             StatusLabel.Text = ""
@@ -454,16 +529,13 @@ function MyLib:ShowKeyPrompt(callback)
         tween(SubmitBtn, {BackgroundColor3 = Color3.fromRGB(100, 160, 255)}, 0.15)
         BtnStroke.Transparency = 0
     end)
-
     SubmitBtn.MouseLeave:Connect(function()
         tween(SubmitBtn, {BackgroundColor3 = Color3.fromRGB(80, 140, 255)}, 0.15)
         BtnStroke.Transparency = 0.3
     end)
 
     InputField.FocusLost:Connect(function(entered)
-        if entered then
-            submit()
-        end
+        if entered then submit() end
     end)
 end
 
@@ -951,7 +1023,6 @@ function MyLib:CreateWindow(config)
                 OptBtn.MouseButton1Click:Connect(function()
                     selected = option
                     SelectedLabel.Text = option
-
                     for _, child in ipairs(ScrollFrame:GetChildren()) do
                         if child:IsA("TextButton") then
                             local isSel = child.Text == selected
@@ -961,7 +1032,6 @@ function MyLib:CreateWindow(config)
                             }, 0.15)
                         end
                     end
-
                     closeDropdown()
                     pcall(config.Callback, selected)
                 end)
@@ -991,12 +1061,10 @@ function MyLib:CreateWindow(config)
                     local ds = DropList.AbsoluteSize
                     local cp = Container.AbsolutePosition
                     local cs = Container.AbsoluteSize
-
                     local inDrop = mousePos.X >= dp.X and mousePos.X <= dp.X + ds.X
                         and mousePos.Y >= dp.Y and mousePos.Y <= dp.Y + ds.Y
                     local inContainer = mousePos.X >= cp.X and mousePos.X <= cp.X + cs.X
                         and mousePos.Y >= cp.Y and mousePos.Y <= cp.Y + cs.Y
-
                     if not inDrop and not inContainer then
                         closeDropdown()
                     end
